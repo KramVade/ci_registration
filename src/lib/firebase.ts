@@ -19,14 +19,36 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Check if all required config values are present
+const isConfigValid = firebaseConfig.apiKey && 
+                     firebaseConfig.authDomain && 
+                     firebaseConfig.projectId && 
+                     firebaseConfig.storageBucket && 
+                     firebaseConfig.messagingSenderId && 
+                     firebaseConfig.appId;
 
-// Initialize Analytics only on client side
-const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+// Initialize Firebase only if config is valid
+let app: any = null;
+let analytics: any = null;
+let auth: any = null;
+let db: any = null;
+let storage: any = null;
 
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+if (isConfigValid) {
+  try {
+    app = initializeApp(firebaseConfig);
+    
+    // Initialize Analytics only on client side
+    analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+    
+    auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
+  } catch (error) {
+    console.error('Firebase initialization error:', error);
+  }
+} else {
+  console.warn('Firebase configuration is incomplete. Some features may not work.');
+}
 
 export { app, analytics, auth, db, storage };

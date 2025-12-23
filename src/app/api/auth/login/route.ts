@@ -4,6 +4,14 @@ import { auth } from '@/lib/firebase';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Firebase auth is initialized
+    if (!auth) {
+      return NextResponse.json(
+        { error: 'Authentication service is not available.' },
+        { status: 503 }
+      );
+    }
+
     const { email, password } = await request.json();
 
     if (!email || !password) {
